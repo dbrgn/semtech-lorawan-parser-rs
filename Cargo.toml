@@ -6,3 +6,4 @@ authors = ["Danilo Bargen <mail@dbrgn.ch>"]
 [dependencies]
 futures = "0.1"
 tokio-core = "0.1"
+nom = "^2.1"
