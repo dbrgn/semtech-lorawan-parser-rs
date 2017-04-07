@@ -53,15 +53,28 @@ named!(gateway_uid<&[u8], Vec<u8>>,
     )
 );
 
-named!(parse_packet<&[u8], Packet>,
+named!(parse_push_data<&[u8], PushData>,
     do_parse!(
         v: protocol_version >>
         r: random_token >>
-        p: alt!(
-            do_parse!( tag!(&[0x00]) >> (Packet::PushData(PushData { version: v, random_token: r })) ) |
-            do_parse!( tag!(&[0x01]) >> (Packet::PushAck(PushAck { version: v, random_token: r })) )
-        ) >>
-        (p)
+        tag!(&[0x00]) >>
+        (PushData { version: v, random_token: r })
+    )
+);
+
+named!(parse_push_ack<&[u8], PushAck>,
+    do_parse!(
+        v: protocol_version >>
+        r: random_token >>
+        tag!(&[0x01]) >>
+        (PushAck { version: v, random_token: r })
+    )
+);
+
+named!(parse_packet<&[u8], Packet>,
+    alt!(
+        map!(parse_push_data, |d| Packet::PushData(d)) |
+        map!(parse_push_ack, |a| Packet::PushAck(a))
     )
 );
 
