@@ -1,7 +1,13 @@
 #[macro_use]
 extern crate nom;
+extern crate serde_json;
+
+use std::str;
 
 use nom::IResult;
+use serde_json::{Map, Value};
+
+type JsonObj = Map<String, Value>;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum ProtocolVersion {
@@ -15,6 +21,7 @@ struct PushData<'a> {
     version: ProtocolVersion,
     random_token: (u8, u8),
     gateway_uid: &'a [u8],
+    payload: JsonObj,
 }
 
 #[derive(Debug, PartialEq)]
@@ -52,13 +59,25 @@ named!(gateway_uid<&[u8], &[u8]>,
     take!(8)
 );
 
+/// Parse JSON payload
+named!(payload<&[u8], JsonObj>,
+   map_res!(
+        map_res!(
+            nom::rest,
+            str::from_utf8
+        ),
+        |txt: &str| serde_json::from_str(txt)
+    )
+);
+
 named!(parse_push_data<&[u8], PushData>,
     do_parse!(
         v: protocol_version >>
         r: random_token >>
         tag!(&[0x00]) >>
         u: gateway_uid >>
-        (PushData { version: v, random_token: r, gateway_uid: u })
+        p: payload >>
+        (PushData { version: v, random_token: r, gateway_uid: u, payload: p })
     )
 );
 
