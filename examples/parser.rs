@@ -11,9 +11,10 @@ enum ProtocolVersion {
 }
 
 #[derive(Debug, PartialEq)]
-struct PushData {
+struct PushData<'a> {
     version: ProtocolVersion,
     random_token: (u8, u8),
+    gateway_uid: &'a [u8],
 }
 
 #[derive(Debug, PartialEq)]
@@ -23,8 +24,8 @@ struct PushAck {
 }
 
 #[derive(Debug, PartialEq)]
-enum Packet {
-    PushData(PushData),
+enum Packet<'a> {
+    PushData(PushData<'a>),
     PushAck(PushAck),
 }
 
@@ -47,10 +48,8 @@ named!(random_token<&[u8], (u8, u8)>,
 );
 
 /// Parse gateway UID
-named!(gateway_uid<&[u8], Vec<u8>>,
-    map!(
-        take!(8), |b: &[u8]| Vec::from(b)
-    )
+named!(gateway_uid<&[u8], &[u8]>,
+    take!(8)
 );
 
 named!(parse_push_data<&[u8], PushData>,
@@ -58,7 +57,8 @@ named!(parse_push_data<&[u8], PushData>,
         v: protocol_version >>
         r: random_token >>
         tag!(&[0x00]) >>
-        (PushData { version: v, random_token: r })
+        u: gateway_uid >>
+        (PushData { version: v, random_token: r, gateway_uid: u })
     )
 );
 
