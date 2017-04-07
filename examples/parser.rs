@@ -3,7 +3,7 @@ extern crate nom;
 
 use nom::IResult;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 enum ProtocolVersion {
     V1,
     V2,
@@ -20,12 +20,6 @@ struct PushData {
 struct PushAck {
     version: ProtocolVersion,
     random_token: (u8, u8),
-}
-
-#[derive(Debug, PartialEq)]
-enum PacketType {
-    PushData,
-    PushAck,
 }
 
 #[derive(Debug, PartialEq)]
@@ -52,11 +46,10 @@ named!(random_token<&[u8], (u8, u8)>,
     )
 );
 
-/// Parse packet type
-named!(packet_type<&[u8], PacketType>,
-    alt!(
-        tag!(&[0x00]) => { |_| PacketType::PushData } |
-        tag!(&[0x01]) => { |_| PacketType::PushAck }
+/// Parse gateway UID
+named!(gateway_uid<&[u8], Vec<u8>>,
+    map!(
+        take!(8), |b: &[u8]| Vec::from(b)
     )
 );
 
@@ -64,11 +57,11 @@ named!(parse_packet<&[u8], Packet>,
     do_parse!(
         v: protocol_version >>
         r: random_token >>
-        t: packet_type >>
-        (match t {
-            PacketType::PushData => Packet::PushData(PushData { version: v, random_token: r }),
-            PacketType::PushAck => Packet::PushAck(PushAck { version: v, random_token: r }),
-        })
+        p: alt!(
+            do_parse!( tag!(&[0x00]) >> (Packet::PushData(PushData { version: v, random_token: r })) ) |
+            do_parse!( tag!(&[0x01]) >> (Packet::PushAck(PushAck { version: v, random_token: r })) )
+        ) >>
+        (p)
     )
 );
 
