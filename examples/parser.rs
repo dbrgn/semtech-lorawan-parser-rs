@@ -54,12 +54,9 @@ named!(random_token<&[u8], (u8, u8)>,
 
 /// Parse packet type
 named!(packet_type<&[u8], PacketType>,
-    map_opt!(
-        take!(1), |b: &[u8]| match b[0] {
-            0x00 => Some(PacketType::PushData),
-            0x01 => Some(PacketType::PushAck),
-            _ => None,
-        }
+    alt!(
+        tag!(&[0x00]) => { |_| PacketType::PushData } |
+        tag!(&[0x01]) => { |_| PacketType::PushAck }
     )
 );
 
