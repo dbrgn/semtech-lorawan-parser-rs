@@ -11,16 +11,27 @@ enum ProtocolVersion {
 }
 
 #[derive(Debug, PartialEq)]
+struct PushData {
+    version: ProtocolVersion,
+    random_token: (u8, u8),
+}
+
+#[derive(Debug, PartialEq)]
+struct PushAck {
+    version: ProtocolVersion,
+    random_token: (u8, u8),
+}
+
+#[derive(Debug, PartialEq)]
 enum PacketType {
     PushData,
     PushAck,
 }
 
 #[derive(Debug, PartialEq)]
-struct Packet {
-    version: ProtocolVersion,
-    random_token: (u8, u8),
-    packet_type: PacketType,
+enum Packet {
+    PushData(PushData),
+    PushAck(PushAck),
 }
 
 /// Parse protocol version
@@ -57,7 +68,10 @@ named!(parse_packet<&[u8], Packet>,
         v: protocol_version >>
         r: random_token >>
         t: packet_type >>
-        (Packet { version: v, random_token: r, packet_type: t })
+        (match t {
+            PacketType::PushData => Packet::PushData(PushData { version: v, random_token: r }),
+            PacketType::PushAck => Packet::PushAck(PushAck { version: v, random_token: r }),
+        })
     )
 );
 
