@@ -1,3 +1,5 @@
+use std::fmt;
+
 use serde_json::{Map, Value};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -5,6 +7,16 @@ pub enum ProtocolVersion {
     V1,
     V2,
     Other(u8),
+}
+
+impl fmt::Display for ProtocolVersion {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ProtocolVersion::V1 => write!(f, "v1"),
+            ProtocolVersion::V2 => write!(f, "v2"),
+            ProtocolVersion::Other(v) => write!(f, "Other({})", v),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]

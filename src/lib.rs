@@ -7,3 +7,5 @@ mod types;
 mod parsers;
 
 pub use parsers::parse_packet;
+pub use types::{Packet, PushData, PushAck, ProtocolVersion};
+pub use types::{Payload, Rxpk, Stat};
