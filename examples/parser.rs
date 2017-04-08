@@ -37,8 +37,39 @@ enum Packet<'a> {
 
 #[derive(Deserialize, Debug, PartialEq)]
 struct Payload {
-    rxpk: Option<Vec<Value>>,
-    stat: Option<Map<String, Value>>,
+    rxpk: Option<Vec<Rxpk>>,
+    stat: Option<Stat>,
+}
+
+#[derive(Deserialize, Debug, PartialEq)]
+struct Rxpk {
+    time: String,
+    tmst: u32,
+    freq: f32,
+    chan: u32,
+    rfch: u32,
+    stat: i8,
+    modu: String,
+    datr: Value,
+    codr: String,
+    rssi: i32,
+    lsnr: f32,
+    size: u32,
+    data: String,
+}
+
+#[derive(Deserialize, Debug, PartialEq)]
+struct Stat {
+    time: String,
+    lati: f32,
+    long: f32,
+    alti: i32,
+    rxnb: u32,
+    rxok: u32,
+    rxfw: u32,
+    ackr: f32,
+    dwnb: u32,
+    txnb: u32,
 }
 
 /// Parse protocol version
