@@ -1,7 +1,11 @@
 [package]
-name = "semtech-lorawan-server"
+name = "semtech-lorawan-parser"
 version = "0.1.0"
 authors = ["Danilo Bargen <mail@dbrgn.ch>"]
+
+[[bin]]
+name = "parse_packet"
+doc = false
 
 [dependencies]
 futures = "0.1"
