@@ -7,4 +7,6 @@ authors = ["Danilo Bargen <mail@dbrgn.ch>"]
 futures = "0.1"
 tokio-core = "0.1"
 nom = "2.2"
+serde = "0.9"
+serde_derive = "0.9"
 serde_json = "0.9"
