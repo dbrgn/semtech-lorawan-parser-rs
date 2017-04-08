@@ -1,5 +1,4 @@
-Work in progress: Parse semtech packet forwarder packets sent from a gateway to
-a LoRaWAN server.
+Work in progress: Parser for semtech packet forwarder packet format.
 
 Spec:
 
